@@ -25,7 +25,7 @@ jobs:
         id: validate
         run: terraform validate -no-color
 
-  python-ckeck:
+  python-check:
     runs-on: ubuntu-latest
     defaults:
       run:
