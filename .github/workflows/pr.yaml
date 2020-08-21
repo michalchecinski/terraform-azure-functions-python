@@ -101,3 +101,20 @@ jobs:
               repo: context.repo.repo,
               body: process.env.STDOUT_FLAKE process.env.STDOUT_MYPY
             })
+
+      - uses: azure/login@v1.1
+        name: 'Azure Login'
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: 'Deploy Azure Functions'
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        env:
+          AZURE_FUNCTIONAPP_NAME: func-python-mch01
+          AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
