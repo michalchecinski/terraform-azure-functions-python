@@ -1,9 +1,10 @@
-name: PR check
+name: Check & deploy
 
 on:
-  pull_request:
+  push:
     branches:
       - master
+  pull_request:
 
 jobs:
   terraform-check:
@@ -41,7 +42,7 @@ jobs:
         id: plan
         run: terraform plan -no-color
 
-      - uses: actions/github-script@0.9.0
+      - uses: actions/github-script@v2
         if: github.event_name == 'pull_request'
         env:
           STDOUT: "```${{ steps.plan.outputs.stdout }}```"
@@ -54,6 +55,10 @@ jobs:
               repo: context.repo.repo,
               body: process.env.STDOUT
             })
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        run: terraform apply -auto-approve
 
   python-check:
     runs-on: ubuntu-latest
@@ -74,23 +79,28 @@ jobs:
           pip install mypy
           pip install flake8
       - name: Lint with flake8
+        id: flake8
         run: |
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 . --count --exit-zero --max-complexity=10 --statistics
       - name: Validate with mypy
+        id: mypy
         run: |
           mypy .
 
-      - uses: actions/github-script@0.9.0
-        if: github.event_name == 'pull_request'
-        env:
-          STDOUT: "```${{ steps.plan.outputs.stdout }}```"
+      - uses: azure/login@v1.1
+        name: 'Azure Login'
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: process.env.STDOUT
-            })
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: 'Deploy Azure Functions'
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        env:
+          AZURE_FUNCTIONAPP_NAME: func-python-mch01
+          AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
