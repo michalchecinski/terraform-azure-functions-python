@@ -4,8 +4,8 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "rg" {
-        name = var.rg_name
-        location = var.location
+  name     = var.rg_name
+  location = var.location
 }
 
 resource "azurerm_application_insights" "functions" {
@@ -44,11 +44,11 @@ resource "azurerm_function_app" "functions" {
 
   version = "~2"
 
-    app_settings = {
-        https_only = true
-        FUNCTIONS_WORKER_RUNTIME = "python"
-        FUNCTION_APP_EDIT_MODE = "readonly"
-        HASH = "base64encode(filesha256(${var.function_app_name}))"
-        APP_INSIGHTS_KEY = azurerm_application_insights.functions.instrumentation_key
-    }
+  app_settings = {
+    https_only               = true
+    FUNCTIONS_WORKER_RUNTIME = "python"
+    FUNCTION_APP_EDIT_MODE   = "readonly"
+    HASH                     = "base64encode(filesha256(${var.function_app_name}))"
+    APP_INSIGHTS_KEY         = azurerm_application_insights.functions.instrumentation_key
+  }
 }

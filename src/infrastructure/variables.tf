@@ -9,21 +9,21 @@ variable location {
 }
 
 variable "function_app_name" {
-    type = string
-    default = "func-python-mch01"
+  type    = string
+  default = "func-python-mch01"
 }
 
 variable "function_service_plan_name" {
-    type = string
-    default = "plan-func-python-mch01"
+  type    = string
+  default = "plan-func-python-mch01"
 }
 
 variable "function_storage_name" {
-    type = string
-    default = "stfuncpythonmch01"
+  type    = string
+  default = "stfuncpythonmch01"
 }
 
 variable "function_app_insights_name" {
-    type = string
-    default = "appi-unc-python-mch01"
+  type    = string
+  default = "appi-unc-python-mch01"
 }
