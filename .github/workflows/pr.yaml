@@ -1,10 +1,9 @@
-name: Check code on PR
+name: PR check
 
 on:
   pull_request:
     branches:
       - master
-      - dev
 
 jobs:
   terraform-check:
@@ -21,9 +20,31 @@ jobs:
         id: init
         run: terraform init
 
+      - name: Terraform Format
+        id: fmt-check
+        run: terraform fmt -check
+
       - name: Terraform Validate
         id: validate
         run: terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color
+
+      - uses: actions/github-script@0.9.0
+        if: github.event_name == 'pull_request'
+        env:
+          STDOUT: "```${{ steps.plan.outputs.stdout }}```"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: process.env.STDOUT
+            })
 
   python-check:
     runs-on: ubuntu-latest
@@ -50,3 +71,17 @@ jobs:
       - name: Validate with mypy
         run: |
           mypy .
+
+      - uses: actions/github-script@0.9.0
+        if: github.event_name == 'pull_request'
+        env:
+          STDOUT: "```${{ steps.plan.outputs.stdout }}```"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: process.env.STDOUT
+            })
