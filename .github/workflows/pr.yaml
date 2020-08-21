@@ -41,7 +41,7 @@ jobs:
         id: plan
         run: terraform plan -no-color
 
-      - uses: actions/github-script@0.9.0
+      - uses: actions/github-script@v2
         if: github.event_name == 'pull_request'
         env:
           STDOUT: "```${{ steps.plan.outputs.stdout }}```"
@@ -54,6 +54,10 @@ jobs:
               repo: context.repo.repo,
               body: process.env.STDOUT
             })
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        run: terraform apply -auto-approve
 
   python-check:
     runs-on: ubuntu-latest
@@ -74,17 +78,20 @@ jobs:
           pip install mypy
           pip install flake8
       - name: Lint with flake8
+        id: flake8
         run: |
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 . --count --exit-zero --max-complexity=10 --statistics
       - name: Validate with mypy
+        id: mypy
         run: |
           mypy .
 
-      - uses: actions/github-script@0.9.0
+      - uses: actions/github-script@v2
         if: github.event_name == 'pull_request'
         env:
-          STDOUT: "```${{ steps.plan.outputs.stdout }}```"
+          STDOUT_MYPY: "```${{ steps.mypy.outputs.stdout }}```"
+          STDOUT_FLAKE: "```${{ steps.mypy.flake8.stdout }}```"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -92,5 +99,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: process.env.STDOUT
+              body: process.env.STDOUT_FLAKE process.env.STDOUT_MYPY
             })
