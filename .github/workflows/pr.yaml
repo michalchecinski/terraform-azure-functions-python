@@ -18,7 +18,7 @@ jobs:
 
       - name: Azure Login
         run: |
-          azCreds="${{ secrets.AZURE_CREDENTIALS }}""
+          azCreds='${{ secrets.AZURE_CREDENTIALS }}'
           export ARM_CLIENT_ID=$(echo "$azCreds" | jq -r '.clientId')
           export ARM_CLIENT_SECRET=$(echo "$azCreds" | jq -r '.clientSecret')
           export ARM_SUBSCRIPTION_ID=$(echo "$azCreds" | jq -r '.subscriptionId')
