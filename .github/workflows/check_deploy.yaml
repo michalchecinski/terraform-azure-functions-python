@@ -88,21 +88,6 @@ jobs:
         run: |
           mypy .
 
-      - uses: actions/github-script@v2
-        if: github.event_name == 'pull_request'
-        env:
-          STDOUT_MYPY: "```${{ steps.mypy.outputs.stdout }}```"
-          STDOUT_FLAKE: "```${{ steps.mypy.flake8.stdout }}```"
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: 'process.env.STDOUT_FLAKE process.env.STDOUT_MYPY'
-            })
-
       - uses: azure/login@v1.1
         name: 'Azure Login'
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
