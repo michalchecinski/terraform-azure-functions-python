@@ -33,6 +33,9 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: export ARM_ACCESS_KEY
+        run: export ARM_ACCESS_KEY=${{ secrets.TF_STATE_STORAGE_ACCESS_KEY }}
+
       - name: Terraform Plan
         id: plan
         run: terraform plan -no-color
