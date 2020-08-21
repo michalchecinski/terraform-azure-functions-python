@@ -3,6 +3,15 @@ provider "azurerm" {
   features {}
 }
 
+terraform {
+  backend "azurerm" {
+    resource_group_name   = "tfstate"
+    storage_account_name  = "tfstate6671"
+    container_name        = "tfstate"
+    key                   = "terraform.tfstate"
+  }
+}
+
 resource "azurerm_resource_group" "rg" {
   name     = var.rg_name
   location = var.location
