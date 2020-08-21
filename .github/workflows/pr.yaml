@@ -25,10 +25,6 @@ jobs:
           echo '::set-env name=ARM_TENANT_ID::'$(echo "$azCreds" | jq -r '.tenantId')
           echo '::set-env name=ARM_ACCESS_KEY::'${{ secrets.TF_STATE_STORAGE_ACCESS_KEY }}
 
-      - name: Print env variable
-        id: env-print
-        run: echo $ARM_SUBSCRIPTION_ID
-
       - name: Terraform Init
         id: init
         run: terraform init
