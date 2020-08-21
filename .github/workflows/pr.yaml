@@ -17,12 +17,18 @@ jobs:
       - uses: hashicorp/setup-terraform@v1
 
       - name: Azure Login
+        uses: azure/login@v1.1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+
+      - name: Export Azure credentials
         run: |
           azCreds='${{ secrets.AZURE_CREDENTIALS }}'
           export ARM_CLIENT_ID=$(echo "$azCreds" | jq -r '.clientId')
           export ARM_CLIENT_SECRET=$(echo "$azCreds" | jq -r '.clientSecret')
           export ARM_SUBSCRIPTION_ID=$(echo "$azCreds" | jq -r '.subscriptionId')
           export ARM_TENANT_ID=$(echo "$azCreds" | jq -r '.tenantId')
+          export ARM_ACCESS_KEY=${{ secrets.TF_STATE_STORAGE_ACCESS_KEY }}
 
       - name: Terraform Init
         id: init
@@ -35,9 +41,6 @@ jobs:
       - name: Terraform Validate
         id: validate
         run: terraform validate -no-color
-
-      - name: export ARM_ACCESS_KEY
-        run: export ARM_ACCESS_KEY=${{ secrets.TF_STATE_STORAGE_ACCESS_KEY }}
 
       - name: Terraform Plan
         id: plan
