@@ -16,6 +16,11 @@ jobs:
       - uses: actions/checkout@v2
       - uses: hashicorp/setup-terraform@v1
 
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Terraform Init
         id: init
         run: terraform init
@@ -27,11 +32,6 @@ jobs:
       - name: Terraform Validate
         id: validate
         run: terraform validate -no-color
-
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: export ARM_ACCESS_KEY
         run: export ARM_ACCESS_KEY=${{ secrets.TF_STATE_STORAGE_ACCESS_KEY }}
