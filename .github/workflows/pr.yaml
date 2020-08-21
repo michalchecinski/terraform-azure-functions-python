@@ -28,6 +28,11 @@ jobs:
         id: validate
         run: terraform validate -no-color
 
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Terraform Plan
         id: plan
         run: terraform plan -no-color
