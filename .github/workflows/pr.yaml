@@ -16,11 +16,6 @@ jobs:
       - uses: actions/checkout@v2
       - uses: hashicorp/setup-terraform@v1
 
-      - name: Azure Login
-        uses: azure/login@v1.1
-        with:
-          creds: ${{secrets.AZURE_CREDENTIALS}}
-
       - name: Export Azure credentials
         run: |
           azCreds='${{ secrets.AZURE_CREDENTIALS }}'
@@ -29,6 +24,10 @@ jobs:
           export ARM_SUBSCRIPTION_ID=$(echo "$azCreds" | jq -r '.subscriptionId')
           export ARM_TENANT_ID=$(echo "$azCreds" | jq -r '.tenantId')
           export ARM_ACCESS_KEY=${{ secrets.TF_STATE_STORAGE_ACCESS_KEY }}
+
+      - name: Print env variable
+        id: env-print
+        run: echo $ARM_SUBSCRIPTION_ID
 
       - name: Terraform Init
         id: init
