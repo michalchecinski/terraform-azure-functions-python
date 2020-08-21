@@ -1,9 +1,10 @@
 name: PR check
 
 on:
-  pull_request:
+  push:
     branches:
       - master
+  pull_request:
 
 jobs:
   terraform-check:
