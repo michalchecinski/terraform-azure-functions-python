@@ -51,6 +51,10 @@ resource "azurerm_function_app" "functions" {
   resource_group_name       = azurerm_resource_group.rg.name
   app_service_plan_id       = azurerm_app_service_plan.functions.id
   storage_connection_string = azurerm_storage_account.functions.primary_connection_string
+  os_type                   = "linux"
+  identity {
+    type = "SystemAssigned"
+  }
 
   version = "~2"
 
