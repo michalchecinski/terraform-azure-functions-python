@@ -37,6 +37,7 @@ stages:
 
   - stage: Terraform
     displayName: Terraform
+    dependsOn: []
     jobs:
       - job: terraform_validation
         displayName: Terraform validation
