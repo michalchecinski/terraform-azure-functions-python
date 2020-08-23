@@ -40,27 +40,30 @@ stages:
     jobs:
       - job: terraform_validation
         displayName: Terraform validation
-        env:
-          ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
-          ARM_CLIENT_ID: $(ARM_CLIENT_ID)
-          ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
-          ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
-          ARM_TENANT_ID: $(ARM_TENANT_ID)
         steps:
-          - script: |
-                az login --service-principal -u $(tf-sp-id) -p $(tf-sp-secret) --tenant $(tf-tenant-id)
-
           - script: terraform init $(terraform-path)
             displayName: 'Terraform Init'
+            env:
+              ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+              ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
 
           - script: terraform fmt -check $(terraform-path)
             displayName: 'Terraform Format'
+            env:
+              ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+              ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
 
           - script: terraform validate -no-color $(terraform-path)
             displayName: 'Terraform Validate'
+            env:
+              ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+              ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
 
           - script: terraform plan -no-color $(terraform-path)
             displayName: 'Terraform Plan'
+            env:
+              ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+              ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
 
 
 
