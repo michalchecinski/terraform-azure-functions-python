@@ -6,14 +6,15 @@ on:
       - master
   pull_request:
 
-jobs:
-  terraform-check:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: src/infrastructure
-    steps:
+env:
+  TERRAFORM_PATH: "src/infrastructure"
+  AZURE_FUNCTIONAPP_NAME: func-python-mch01
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: "src/functions"
 
+jobs:
+  check-deploy:
+    runs-on: ubuntu-latest
+    steps:
       - uses: actions/checkout@v2
       - uses: hashicorp/setup-terraform@v1
 
@@ -28,19 +29,19 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init
+        run: terraform init ${{ env.TERRAFORM_PATH }}
 
       - name: Terraform Format
         id: fmt-check
-        run: terraform fmt -check
+        run: terraform fmt -check ${{ env.TERRAFORM_PATH }}
 
       - name: Terraform Validate
         id: validate
-        run: terraform validate -no-color
+        run: terraform validate -no-color ${{ env.TERRAFORM_PATH }}
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -no-color
+        run: terraform plan -no-color ${{ env.TERRAFORM_PATH }}
 
       - uses: actions/github-script@v2
         if: github.event_name == 'pull_request'
@@ -56,16 +57,6 @@ jobs:
               body: process.env.STDOUT
             })
 
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-        run: terraform apply -auto-approve
-
-  python-check:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: src/functions
-    steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Set up Python 3.6
@@ -74,6 +65,7 @@ jobs:
           python-version: 3.6
       - name: Install dependencies
         run: |
+          cd ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install mypy
@@ -81,24 +73,25 @@ jobs:
       - name: Lint with flake8
         id: flake8
         run: |
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 . --count --exit-zero --max-complexity=10 --statistics
+          flake8 ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }} --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }} --count --exit-zero --max-complexity=10 --statistics
       - name: Validate with mypy
         id: mypy
         run: |
-          mypy .
+          mypy ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        run: terraform apply -auto-approve ${{ env.TERRAFORM_PATH }}
 
       - uses: azure/login@v1.1
-        name: 'Azure Login'
+        name: "Azure Login"
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 'Deploy Azure Functions'
+      - name: "Deploy Azure Functions"
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-        env:
-          AZURE_FUNCTIONAPP_NAME: func-python-mch01
-          AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'
         uses: Azure/functions-action@v1
         id: fa
         with:
