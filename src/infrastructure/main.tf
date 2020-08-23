@@ -66,3 +66,17 @@ resource "azurerm_function_app" "functions" {
     APP_INSIGHTS_KEY         = azurerm_application_insights.functions.instrumentation_key
   }
 }
+
+resource "azurerm_storage_account" "storage" {
+  name                     = var.storage_name
+  resource_group_name      = azurerm_resource_group.rg.name
+  location                 = azurerm_resource_group.rg.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+
+resource "azurerm_role_assignment" "storage" {
+  scope                = azurerm_storage_account.storage.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_app_service.functions.identity.identity_ids[0]
+}
