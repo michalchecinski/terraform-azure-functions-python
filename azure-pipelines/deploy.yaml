@@ -2,18 +2,18 @@ trigger:
   batch: true
   branches:
     include:
-    - master
+      - master
   paths:
     exclude:
-    - README.md
+      - README.md
 
 pr: none
 
 variables:
   - name: functions-path
-    value: 'src/functions'
+    value: "src/functions"
   - name: terraform-path
-    value: 'src/infrastructure'
+    value: "src/infrastructure"
 
   - name: appName
     value: func-python-mch01
@@ -29,21 +29,21 @@ stages:
         displayName: Terraform validation
         steps:
           - script: terraform init $(terraform-path)
-            displayName: 'Terraform Init'
+            displayName: "Terraform Init"
             env:
               ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
               ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
 
           - script: terraform plan -no-color $(terraform-path) -out $(terraform-path)/tf-plan.out
-            displayName: 'Terraform Plan'
+            displayName: "Terraform Plan"
             env:
               ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
               ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
 
           - task: PublishBuildArtifacts@1
             inputs:
-              PathtoPublish: '$(terraform-path)/tf-plan.out'
-              artifactName: 'tf-plan'
+              PathtoPublish: "$(terraform-path)/tf-plan.out"
+              artifactName: "tf-plan"
 
   - stage: Python
     displayName: Python
@@ -54,10 +54,10 @@ stages:
         steps:
           - task: UsePythonVersion@0
             inputs:
-              versionSpec: '3.6'
+              versionSpec: "3.6"
               addToPath: true
-              architecture: 'x64'
-            displayName: 'Use python 3.6'
+              architecture: "x64"
+            displayName: "Use python 3.6"
           - script: |
               python -m pip install --upgrade pip
               pip install -r $(functions-path)/requirements.txt
@@ -70,8 +70,8 @@ stages:
               archiveFile: "$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip"
           - task: PublishBuildArtifacts@1
             inputs:
-              PathtoPublish: '$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip'
-              artifactName: 'azfunc'
+              PathtoPublish: "$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip"
+              artifactName: "azfunc"
 
   - stage: deployment
     displayName: Azure Deployment
@@ -79,28 +79,22 @@ stages:
       - Terraform
       - Python
     jobs:
-      - job: deployment
-        displayName: Deployment
-        steps:
-          - deployment: 'deployToAzure'
-            displayName: 'Deploy to Azure'
-            environment: 'DevEnv'
-            dependsOn: 'python_publish'
-            strategy:
-              runOnce:
-                deploy:
-                  steps:
-                    - script: terraform apply -auto-approve $(Pipeline.Workspace)/tf-plan/tf-plan.out
-                      displayName: 'Terraform Apply'
-                      env:
-                        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
-                        ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
-                    - task: AzureFunctionApp@1
-                      inputs:
-                        azureSubscription: 'VSE-MSA-Sub'
-                        appType: functionAppLinux
-                        appName: $(appName)
-                        package: $(Pipeline.Workspace)/azfunc/build$(Build.BuildId).zip
-
-
-
+      - deployment: "deployToAzure"
+        displayName: "Deploy to Azure"
+        environment: "DevEnv"
+        dependsOn: "python_publish"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - script: terraform apply -auto-approve $(Pipeline.Workspace)/tf-plan/tf-plan.out
+                  displayName: "Terraform Apply"
+                  env:
+                    ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+                    ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+                - task: AzureFunctionApp@1
+                  inputs:
+                    azureSubscription: "VSE-MSA-Sub"
+                    appType: functionAppLinux
+                    appName: $(appName)
+                    package: $(Pipeline.Workspace)/azfunc/build$(Build.BuildId).zip
