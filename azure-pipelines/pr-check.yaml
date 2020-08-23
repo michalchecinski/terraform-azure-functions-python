@@ -12,6 +12,7 @@ variables:
 stages:
   - stage: python
     displayName: Python
+    dependsOn: []
     jobs:
       - job: python_validation
         displayName: Python validation
@@ -37,6 +38,7 @@ stages:
 
   - stage: Terraform
     displayName: Terraform
+    dependsOn: []
     jobs:
       - job: terraform_validation
         displayName: Terraform validation
