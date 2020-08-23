@@ -10,10 +10,11 @@ variables:
   - group: terraform-auth-variables
 
 stages:
-  - stage: Python
+  - stage: python
     displayName: Python
     jobs:
-      - job: Python validation
+      - job: python_validation
+        displayName: Python validation
         steps:
           - task: UsePythonVersion@0
             inputs:
@@ -37,7 +38,8 @@ stages:
   - stage: Terraform
     displayName: Terraform
     jobs:
-      - job: Terraform validation
+      - job: terraform_validation
+        displayName: Terraform validation
         steps:
           - script: terraform init $(terraform-path)
             displayName: 'Terraform Init'
