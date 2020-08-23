@@ -75,7 +75,6 @@ stages:
               steps:
                 - script: |
                     terraform init $(Pipeline.Workspace)/tf
-                    terraform plan -no-color $(Pipeline.Workspace)/tf
                     terraform apply -auto-approve $(Pipeline.Workspace)/tf
                   displayName: 'Terraform deployment'
                   env:
