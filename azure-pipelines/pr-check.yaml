@@ -12,7 +12,6 @@ variables:
 stages:
   - stage: python
     displayName: Python
-    dependsOn: []
     jobs:
       - job: python_validation
         displayName: Python validation
