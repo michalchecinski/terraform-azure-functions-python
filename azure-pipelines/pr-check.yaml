@@ -39,17 +39,17 @@ stages:
     jobs:
       - job: Terraform validation
         steps:
-          - displayName: Terraform Init
-            script: terraform init $(terraform-path)
+          - script: terraform init $(terraform-path)
+            displayName: 'Terraform Init'
 
-          - displayName: Terraform Format
-            script: terraform fmt -check $(terraform-path)
+          - script: terraform fmt -check $(terraform-path)
+            displayName: 'Terraform Format'
 
-          - displayName: Terraform Validate
-            script: terraform validate -no-color $(terraform-path)
+          - script: terraform validate -no-color $(terraform-path)
+            displayName: 'Terraform Validate'
 
-          - displayName: Terraform Plan
-            script: terraform plan -no-color $(terraform-path)
+          - script: terraform plan -no-color $(terraform-path)
+            displayName: 'Terraform Plan'
 
 
 
