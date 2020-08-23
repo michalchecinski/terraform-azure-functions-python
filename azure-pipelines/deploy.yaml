@@ -81,7 +81,6 @@ stages:
       - deployment: "deployToAzure"
         displayName: "Deploy to Azure"
         environment: "DevEnv"
-        dependsOn: "python_publish"
         strategy:
           runOnce:
             deploy:
