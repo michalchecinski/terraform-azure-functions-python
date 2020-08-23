@@ -24,25 +24,13 @@ stages:
   - stage: Terraform
     displayName: Terraform
     jobs:
-      - job: terraform_validation
-        displayName: Terraform validation
+      - job: terraform_plan
+        displayName: Terraform publish
         steps:
-          - script: terraform init $(terraform-path)
-            displayName: "Terraform Init"
-            env:
-              ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
-              ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
-
-          - script: terraform plan -no-color -out $(terraform-path)/tf-plan.out $(terraform-path)
-            displayName: "Terraform Plan"
-            env:
-              ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
-              ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
-
           - task: PublishBuildArtifacts@1
             inputs:
-              PathtoPublish: "$(terraform-path)/tf-plan.out"
-              artifactName: "tf-plan"
+              PathtoPublish: "$(terraform-path)"
+              artifactName: "tf"
 
   - stage: Python
     displayName: Python
@@ -85,8 +73,11 @@ stages:
           runOnce:
             deploy:
               steps:
-                - script: terraform apply -auto-approve $(Pipeline.Workspace)/tf-plan/tf-plan.out
-                  displayName: "Terraform Apply"
+                - script: |
+                    terraform init $(Pipeline.Workspace)/tf
+                    terraform plan -no-color $(Pipeline.Workspace)/tf
+                    terraform apply -auto-approve $(Pipeline.Workspace)/tf
+                  displayName: 'Terraform deployment'
                   env:
                     ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
                     ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
