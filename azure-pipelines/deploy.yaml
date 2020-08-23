@@ -33,7 +33,7 @@ stages:
               ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
               ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
 
-          - script: terraform plan -no-color $(terraform-path) -out $(terraform-path)/tf-plan.out
+          - script: terraform plan -no-color -out $(terraform-path)/tf-plan.out $(terraform-path)
             displayName: "Terraform Plan"
             env:
               ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
