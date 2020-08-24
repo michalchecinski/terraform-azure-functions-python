@@ -64,7 +64,7 @@ resource "azurerm_function_app" "functions" {
     FUNCTION_APP_EDIT_MODE   = "readonly"
     HASH                     = "base64encode(filesha256(${var.function_app_name}))"
     APP_INSIGHTS_KEY         = azurerm_application_insights.functions.instrumentation_key
-    storage_name              = azurerm_storage_account.storage.name
+    storage_name             = azurerm_storage_account.storage.name
   }
 }
 
