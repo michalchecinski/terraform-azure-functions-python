@@ -1,0 +1,88 @@
+trigger:
+  batch: true
+  branches:
+    include:
+      - master
+  paths:
+    exclude:
+      - README.md
+
+pr: none
+
+variables:
+  - name: functions-path
+    value: "src/functions"
+  - name: terraform-path
+    value: "src/infrastructure"
+
+  - name: appName
+    value: func-python-mch01
+
+  - group: terraform-auth-variables
+
+stages:
+  - stage: Terraform
+    displayName: Terraform
+    jobs:
+      - job: terraform_plan
+        displayName: Terraform publish
+        steps:
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "$(terraform-path)"
+              artifactName: "tf"
+
+  - stage: Python
+    displayName: Python
+    dependsOn: []
+    jobs:
+      - job: python_publish
+        displayName: Azure functions python publish
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: "3.6"
+              addToPath: true
+              architecture: "x64"
+            displayName: "Use python 3.6"
+          - script: |
+              python -m pip install --upgrade pip
+              pip install -r $(functions-path)/requirements.txt
+
+          - task: ArchiveFiles@2
+            displayName: "Archive files"
+            inputs:
+              rootFolderOrFile: "$(System.DefaultWorkingDirectory)/$(functions-path)"
+              includeRootFolder: false
+              archiveFile: "$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip"
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip"
+              artifactName: "azfunc"
+
+  - stage: deployment
+    displayName: Azure Deployment
+    dependsOn:
+      - Terraform
+      - Python
+    jobs:
+      - deployment: "deployToAzure"
+        displayName: "Deploy to Azure"
+        environment: "DevEnv"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - script: |
+                    terraform init $(Pipeline.Workspace)/tf
+                    terraform apply -auto-approve $(Pipeline.Workspace)/tf
+                  displayName: 'Terraform deployment'
+                  env:
+                    ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+                    ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+                - task: AzureFunctionApp@1
+                  inputs:
+                    azureSubscription: "VSE-MSA-Sub"
+                    appType: functionAppLinux
+                    appName: $(appName)
+                    package: $(Pipeline.Workspace)/azfunc/build$(Build.BuildId).zip
