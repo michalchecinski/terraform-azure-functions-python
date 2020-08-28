@@ -58,6 +58,10 @@ resource "azurerm_function_app" "functions" {
 
   version = "~3"
 
+  identity {
+    type = "SystemAssigned"
+  }
+
   app_settings = {
     https_only               = true
     FUNCTIONS_WORKER_RUNTIME = "python"
