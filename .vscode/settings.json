@@ -2,6 +2,7 @@
     "azureFunctions.deploySubpath": "src\\functions",
     "azureFunctions.scmDoBuildDuringDeployment": true,
     "azureFunctions.projectLanguage": "Python",
-    "azureFunctions.projectRuntime": "~2",
-    "debug.internalConsoleOptions": "neverOpen"
+    "azureFunctions.projectRuntime": "~3",
+    "debug.internalConsoleOptions": "neverOpen",
+    "python.pythonPath": "C:\\Users\\Michal\\AppData\\Local\\Programs\\Python\\Python37\\python.exe"
 }

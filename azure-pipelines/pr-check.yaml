@@ -34,15 +34,15 @@ stages:
           - script: |
               python -m pip install --upgrade pip
               pip install -r $(functions-path)/requirements.txt
-              pip install mypy
+              # pip install mypy
               pip install flake8
             displayName: 'Install python validation tools'
           - script: |
               flake8 $(functions-path) --count --select=E9,F63,F7,F82 --show-source --statistics
               flake8 $(functions-path) --count --exit-zero --max-complexity=10 --statistics
             displayName: 'Validate flake8'
-          - script: mypy $(functions-path)
-            displayName: 'Validate my-py'
+          # - script: mypy $(functions-path)
+          #   displayName: 'Validate my-py'
 
   - stage: Terraform
     displayName: Terraform

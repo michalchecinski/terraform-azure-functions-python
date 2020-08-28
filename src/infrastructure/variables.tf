@@ -27,3 +27,8 @@ variable "function_app_insights_name" {
   type    = string
   default = "appi-unc-python-mch01"
 }
+
+variable "storage_name" {
+  type    = string
+  default = "stfilesmch01"
+}
