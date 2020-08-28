@@ -79,5 +79,5 @@ resource "azurerm_storage_account" "storage" {
 resource "azurerm_role_assignment" "storage" {
   scope                = azurerm_storage_account.storage.id
   role_definition_name = "Storage Blob Data Contributor"
-  principal_id         = lookup(azurerm_function_app.functions.identity[0], "principal_id")
+  principal_id         = azurerm_function_app.functions.identity[0].principal_id
 }
