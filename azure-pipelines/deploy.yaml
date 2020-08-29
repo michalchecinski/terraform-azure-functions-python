@@ -46,8 +46,9 @@ stages:
               architecture: "x64"
             displayName: "Use python 3.6"
           - script: |
+              cd $(functions-path)
               python -m pip install --upgrade pip
-              pip install -r $(functions-path)/requirements.txt
+              pip install -r requirements.txt
 
           - task: ArchiveFiles@2
             displayName: "Archive files"
