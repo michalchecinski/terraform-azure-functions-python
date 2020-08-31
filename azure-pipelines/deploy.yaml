@@ -46,19 +46,20 @@ stages:
               architecture: "x64"
             displayName: "Use python 3.6"
           - script: |
-              cd $(functions-path)
               python -m pip install --upgrade pip
               pip install -r requirements.txt
+            workingDirectory: $(functions-path)
 
           - task: ArchiveFiles@2
             displayName: "Archive files"
             inputs:
-              rootFolderOrFile: "$(System.DefaultWorkingDirectory)/$(functions-path)"
+              rootFolderOrFile: $(functions-path)
               includeRootFolder: false
-              archiveFile: "$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip"
+              archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+              replaceExistingArchive: true
           - task: PublishBuildArtifacts@1
             inputs:
-              PathtoPublish: "$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip"
+              PathtoPublish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
               artifactName: "azfunc"
 
   - stage: deployment
@@ -86,4 +87,4 @@ stages:
                     azureSubscription: "VSE-MSA-Sub"
                     appType: functionAppLinux
                     appName: $(appName)
-                    package: $(Pipeline.Workspace)/azfunc/build$(Build.BuildId).zip
+                    package: $(Pipeline.Workspace)/azfunc/$(Build.BuildId).zip
