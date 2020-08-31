@@ -60,12 +60,12 @@ resource "azurerm_function_app" "functions" {
   }
 
   app_settings = {
-    https_only               = true
-    FUNCTIONS_WORKER_RUNTIME = "python"
-    FUNCTION_APP_EDIT_MODE   = "readonly"
-    HASH                     = "base64encode(filesha256(${var.function_app_name}))"
-    APP_INSIGHTS_KEY         = azurerm_application_insights.functions.instrumentation_key
-    storage_name             = azurerm_storage_account.storage.name
+    https_only                     = true
+    FUNCTIONS_WORKER_RUNTIME       = "python"
+    FUNCTION_APP_EDIT_MODE         = "readonly"
+    HASH                           = "base64encode(filesha256(${var.function_app_name}))"
+    APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.functions.instrumentation_key
+    storage_name                   = azurerm_storage_account.storage.name
   }
 }
 
@@ -81,4 +81,7 @@ resource "azurerm_role_assignment" "storage" {
   scope                = azurerm_storage_account.storage.id
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = azurerm_function_app.functions.identity[0].principal_id
+  depends_on = [
+    azurerm_function_app.functions
+  ]
 }

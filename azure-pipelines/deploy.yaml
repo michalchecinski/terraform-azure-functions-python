@@ -45,10 +45,12 @@ stages:
               addToPath: true
               architecture: "x64"
             displayName: "Use python 3.6"
-          - script: |
-              python -m pip install --upgrade pip
+          - bash: |
+              python -m venv worker_venv
+              source worker_venv/bin/activate
               pip install -r requirements.txt
             workingDirectory: $(functions-path)
+            displayName: 'Install application dependencies'
 
           - task: ArchiveFiles@2
             displayName: "Archive files"
