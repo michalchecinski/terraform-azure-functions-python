@@ -63,7 +63,7 @@ resource "azurerm_function_app" "functions" {
     https_only                     = true
     FUNCTIONS_WORKER_RUNTIME       = "python"
     FUNCTION_APP_EDIT_MODE         = "readonly"
-    HASH                           = "base64encode(filesha256(${var.function_app_name}))"
+    HASH                           = base64encode(filesha256("${var.function_app_name}"))
     APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.functions.instrumentation_key
     storage_name                   = azurerm_storage_account.storage.name
   }
