@@ -3,6 +3,7 @@ import azure.functions as func
 import os
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+from azure.core import ResourceExistsError
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
@@ -23,7 +24,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     container_name = "http-files"
 
-    blob_service_client.get_container_client(container_name)
+    try:
+        blob_service_client.create_container(container_name)
+    except ResourceExistsError:
+        print("Container already exists.")
 
     for file_key in files:
         file = files[file_key]
