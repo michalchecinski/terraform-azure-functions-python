@@ -21,7 +21,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     blob_service_client = BlobServiceClient(account_url, credential)
 
-    container_name = "http_files"
+    container_name = "http-files"
 
     blob_service_client.get_container_client(container_name)
 
