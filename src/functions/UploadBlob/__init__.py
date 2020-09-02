@@ -3,7 +3,7 @@ import azure.functions as func
 import os
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
-from azure.core import ResourceExistsError
+from azure.core.exceptions import ResourceExistsError
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
